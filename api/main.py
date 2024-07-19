@@ -30,3 +30,19 @@ def write_to_csv(sessions):
         writer = csv.writer(file)
         writer.writerow(['Created At', 'Time', 'Elapsed', 'Goal', 'Ended', 'Work'])
         for session in sessions:
+            writer.writerow([
+                session.get('createdAt', ''),
+                session.get('time', ''),
+                session.get('elapsed', ''),
+                session.get('goal', ''),
+                session.get('ended', ''),
+                session.get('work', '')
+            ])
+
+def main():
+    sessions = fetch_sessions()
+    write_to_csv(sessions)
+    print(f"Session data has been written to {CSV_FILE_PATH}")
+
+if __name__ == '__main__':
+    main()
