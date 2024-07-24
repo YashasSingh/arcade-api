@@ -22,3 +22,23 @@ def plot_session_times(df):
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
+
+def plot_goal_distribution(df):
+    plt.figure(figsize=(10, 6))
+    sns.countplot(data=df, x='Goal', order=df['Goal'].value_counts().index)
+    plt.title('Goal Distribution')
+    plt.xlabel('Goal')
+    plt.ylabel('Count')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+def main():
+    df = read_csv(CSV_FILE_PATH)
+    df = preprocess_data(df)
+    print(df.describe())
+    plot_session_times(df)
+    plot_goal_distribution(df)
+
+if __name__ == '__main__':
+    main()
