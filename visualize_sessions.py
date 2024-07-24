@@ -106,6 +106,42 @@ def plot_average_session_time_per_goal(df):
     plt.tight_layout()
     plt.show()
 
+def plot_total_session_time_over_time(df):
+    df['Cumulative Time'] = df['Time'].cumsum()
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(x='Created At', y='Cumulative Time', data=df, marker='o')
+    plt.title('Total Session Time Over Time')
+    plt.xlabel('Date')
+    plt.ylabel('Cumulative Session Time (minutes)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+def plot_average_session_time_per_day(df):
+    df['Date'] = df['Created At'].dt.date
+    avg_session_time_per_day = df.groupby('Date')['Time'].mean().reset_index()
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(x='Date', y='Time', data=avg_session_time_per_day, marker='o')
+    plt.title('Average Session Time Per Day')
+    plt.xlabel('Date')
+    plt.ylabel('Average Session Time (minutes)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+def plot_total_sessions_per_day(df):
+    df['Date'] = df['Created At'].dt.date
+    sessions_per_day = df['Date'].value_counts().reset_index()
+    sessions_per_day.columns = ['Date', 'Sessions']
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(x='Date', y='Sessions', data=sessions_per_day.sort_values('Date'), marker='o')
+    plt.title('Total Sessions Per Day')
+    plt.xlabel('Date')
+    plt.ylabel('Total Sessions')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
 def main():
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
@@ -120,6 +156,9 @@ def main():
     plot_goal_pie_chart(df)
     plot_session_time_vs_elapsed(df)
     plot_average_session_time_per_goal(df)
+    plot_total_session_time_over_time(df)
+    plot_average_session_time_per_day(df)
+    plot_total_sessions_per_day(df)
 
 if __name__ == '__main__':
     main()
