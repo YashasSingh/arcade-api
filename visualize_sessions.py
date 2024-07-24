@@ -63,6 +63,49 @@ def plot_sessions_per_day(df):
     plt.tight_layout()
     plt.show()
 
+def plot_session_boxplot(df):
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(data=df, y='Time')
+    plt.title('Box Plot of Session Times')
+    plt.ylabel('Session Time (minutes)')
+    plt.tight_layout()
+    plt.show()
+
+def plot_correlation_heatmap(df):
+    plt.figure(figsize=(10, 6))
+    corr = df[['Time', 'Elapsed']].corr()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+    plt.title('Correlation Heatmap')
+    plt.tight_layout()
+    plt.show()
+
+def plot_goal_pie_chart(df):
+    plt.figure(figsize=(10, 6))
+    df['Goal'].value_counts().plot.pie(autopct='%1.1f%%', startangle=90, counterclock=False)
+    plt.title('Goals Proportion')
+    plt.ylabel('')
+    plt.tight_layout()
+    plt.show()
+
+def plot_session_time_vs_elapsed(df):
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df, x='Time', y='Elapsed')
+    plt.title('Session Time vs Elapsed Time')
+    plt.xlabel('Session Time (minutes)')
+    plt.ylabel('Elapsed Time (minutes)')
+    plt.tight_layout()
+    plt.show()
+
+def plot_average_session_time_per_goal(df):
+    plt.figure(figsize=(10, 6))
+    sns.barplot(data=df, x='Goal', y='Time', estimator='mean', ci=None, order=df['Goal'].value_counts().index)
+    plt.title('Average Session Time per Goal')
+    plt.xlabel('Goal')
+    plt.ylabel('Average Session Time (minutes)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
 def main():
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
@@ -72,6 +115,11 @@ def main():
     plot_session_duration_distribution(df)
     plot_elapsed_time_vs_goal(df)
     plot_sessions_per_day(df)
+    plot_session_boxplot(df)
+    plot_correlation_heatmap(df)
+    plot_goal_pie_chart(df)
+    plot_session_time_vs_elapsed(df)
+    plot_average_session_time_per_goal(df)
 
 if __name__ == '__main__':
     main()
