@@ -43,9 +43,10 @@ def plot_session_duration_distribution(df):
     plt.show()
 
 def plot_elapsed_time_vs_goal(df):
+    df_filtered = df[df['Elapsed'] != 60]
     plt.figure(figsize=(10, 6))
-    sns.barplot(data=df, x='Goal', y='Elapsed', ci=None, estimator=sum, order=df['Goal'].value_counts().index)
-    plt.title('Total Elapsed Time by Goal')
+    sns.barplot(data=df_filtered, x='Goal', y='Elapsed', ci=None, estimator=sum, order=df_filtered['Goal'].value_counts().index)
+    plt.title('Total Elapsed Time by Goal (excluding 60-minute sessions)')
     plt.xlabel('Goal')
     plt.ylabel('Total Elapsed Time (minutes)')
     plt.xticks(rotation=45)
@@ -88,9 +89,10 @@ def plot_goal_pie_chart(df):
     plt.show()
 
 def plot_session_time_vs_elapsed(df):
+    df_filtered = df[df['Elapsed'] != 60]
     plt.figure(figsize=(10, 6))
-    sns.scatterplot(data=df, x='Time', y='Elapsed')
-    plt.title('Session Time vs Elapsed Time')
+    sns.scatterplot(data=df_filtered, x='Time', y='Elapsed')
+    plt.title('Session Time vs Elapsed Time (excluding 60-minute sessions)')
     plt.xlabel('Session Time (minutes)')
     plt.ylabel('Elapsed Time (minutes)')
     plt.tight_layout()
@@ -142,23 +144,56 @@ def plot_total_sessions_per_day(df):
     plt.tight_layout()
     plt.show()
 
+def annotate_graphs():
+    annotations = {
+        'Session Time Over Time': 'This graph shows the session times recorded over the entire period. Each point represents a session.',
+        'Goal Distribution': 'This bar chart shows the distribution of different goals set during the sessions.',
+        'Session Duration Distribution': 'This histogram shows the distribution of session durations. The KDE line shows the density estimation.',
+        'Total Elapsed Time by Goal (excluding 60-minute sessions)': 'This bar chart shows the total elapsed time for each goal, excluding sessions that lasted exactly 60 minutes.',
+        'Sessions Per Day': 'This bar chart shows the number of sessions recorded per day.',
+        'Box Plot of Session Times': 'This box plot shows the distribution of session times. The box represents the interquartile range (IQR) and the line inside the box represents the median.',
+        'Correlation Heatmap': 'This heatmap shows the correlation between session time and elapsed time. Correlation values range from -1 to 1.',
+        'Goals Proportion': 'This pie chart shows the proportion of different goals set during the sessions.',
+        'Session Time vs Elapsed Time (excluding 60-minute sessions)': 'This scatter plot shows the relationship between session time and elapsed time, excluding sessions that lasted exactly 60 minutes.',
+        'Average Session Time per Goal': 'This bar chart shows the average session time for each goal.',
+        'Total Session Time Over Time': 'This line graph shows the cumulative session time over the entire period.',
+        'Average Session Time Per Day': 'This line graph shows the average session time per day.',
+        'Total Sessions Per Day': 'This line graph shows the total number of sessions recorded per day.'
+    }
+
+    for title, annotation in annotations.items():
+        plt.annotate(annotation, (0.5, 0.01), xycoords='axes fraction', ha='center', va='bottom', fontsize=10, color='gray')
+
 def main():
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
     print(df.describe())
     plot_session_times(df)
+    annotate_graphs()
     plot_goal_distribution(df)
+    annotate_graphs()
     plot_session_duration_distribution(df)
+    annotate_graphs()
     plot_elapsed_time_vs_goal(df)
+    annotate_graphs()
     plot_sessions_per_day(df)
+    annotate_graphs()
     plot_session_boxplot(df)
+    annotate_graphs()
     plot_correlation_heatmap(df)
+    annotate_graphs()
     plot_goal_pie_chart(df)
+    annotate_graphs()
     plot_session_time_vs_elapsed(df)
+    annotate_graphs()
     plot_average_session_time_per_goal(df)
+    annotate_graphs()
     plot_total_session_time_over_time(df)
+    annotate_graphs()
     plot_average_session_time_per_day(df)
+    annotate_graphs()
     plot_total_sessions_per_day(df)
+    annotate_graphs()
 
 if __name__ == '__main__':
     main()
