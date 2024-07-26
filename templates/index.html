@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Arcade Sessions Visualization</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Arcade Sessions Visualization</h1>
+    {% for plot in plots %}
+        <div>{{ plot|safe }}</div>
+    {% endfor %}
+</body>
+</html>
