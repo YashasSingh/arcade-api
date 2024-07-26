@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Read the CSV file
-CSV_FILE_PATH = 'arcade_sessions.csv'
+CSV_FILE_PATH = r"C:\Users\ysing\Downloads\arcade-api-main\arcade-api-main\arcade_sessions.csv"
 
 def read_csv(file_path):
     return pd.read_csv(file_path, encoding='ISO-8859-1')

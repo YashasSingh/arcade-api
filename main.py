@@ -3,15 +3,19 @@ import csv
 import os
 import configparser
 from datetime import datetime
+from dotenv import load_dotenv, dotenv_values 
 
+
+load_dotenv() 
 # Read configuration file
 config = configparser.ConfigParser()
 config.read('config.ini')
 
 # Fetch API token and user ID from configuration file
-SLACK_API_TOKEN = config['slack']['api_token']
-SLACK_USER_ID = config['slack']['user_id']
+SLACK_API_TOKEN = os.getenv("api_token")
+SLACK_USER_ID = os.getenv("user_id")
 CSV_FILE_PATH = 'arcade_sessions.csv'
+print(SLACK_API_TOKEN)
 
 headers = {
     'Authorization': f'Bearer {SLACK_API_TOKEN}'

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -19,18 +19,12 @@ def preprocess_data(df):
 def filter_sessions(df):
     return df[df['Time'] != 60]
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
     df_filtered = filter_sessions(df)
     
-    start_date = request.form.get('start_date', df['Created At'].min().strftime('%Y-%m-%d'))
-    end_date = request.form.get('end_date', df['Created At'].max().strftime('%Y-%m-%d'))
-    
-    df = df[(df['Created At'] >= start_date) & (df['Created At'] <= end_date)]
-    df_filtered = df_filtered[(df_filtered['Created At'] >= start_date) & (df_filtered['Created At'] <= end_date)]
-
     # Create visualizations
     plots = []
 
@@ -60,18 +54,24 @@ def index():
     fig5.update_layout(xaxis_title='Session Time (minutes)', yaxis_title='Elapsed Time (minutes)')
     plots.append(fig5.to_html(full_html=False))
 
-    # Cumulative Elapsed Time Over Time
-    fig6 = px.line(df, x='Created At', y=df['Elapsed'].cumsum(), title='Cumulative Elapsed Time Over Time')
-    fig6.update_layout(xaxis_title='Date', yaxis_title='Cumulative Elapsed Time (minutes)', xaxis=dict(tickangle=45))
+    # Average Elapsed Time per Session Over Time (Excluding 60-min Sessions)
+    fig6 = px.line(df_filtered, x='Created At', y='Elapsed', title='Average Elapsed Time per Session Over Time (Excluding 60-min Sessions)')
+    fig6.update_layout(xaxis_title='Date', yaxis_title='Average Elapsed Time (minutes)', xaxis=dict(tickangle=45))
     plots.append(fig6.to_html(full_html=False))
 
-    # Session Count by Date
-    df['Date'] = df['Created At'].dt.date
-    fig7 = px.histogram(df, x='Date', title='Session Count by Date')
-    fig7.update_layout(xaxis_title='Date', yaxis_title='Count', xaxis=dict(tickangle=45))
+    # Number of Sessions Over Time
+    sessions_over_time = df.groupby(df['Created At'].dt.date).size()
+    fig7 = px.line(sessions_over_time, title='Number of Sessions Over Time')
+    fig7.update_layout(xaxis_title='Date', yaxis_title='Number of Sessions', xaxis=dict(tickangle=45))
     plots.append(fig7.to_html(full_html=False))
 
-    return render_template('index.html', plots=plots, start_date=start_date, end_date=end_date)
+    # Total Elapsed Time Over Time (Excluding 60-min Sessions)
+    total_elapsed_over_time = df_filtered.groupby(df_filtered['Created At'].dt.date)['Elapsed'].sum()
+    fig8 = px.line(total_elapsed_over_time, title='Total Elapsed Time Over Time (Excluding 60-min Sessions)')
+    fig8.update_layout(xaxis_title='Date', yaxis_title='Total Elapsed Time (minutes)', xaxis=dict(tickangle=45))
+    plots.append(fig8.to_html(full_html=False))
+
+    return render_template('index.html', plots=plots)
 
 if __name__ == '__main__':
     app.run(debug=True)
