@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -19,12 +19,18 @@ def preprocess_data(df):
 def filter_sessions(df):
     return df[df['Time'] != 60]
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
     df_filtered = filter_sessions(df)
     
+    start_date = request.form.get('start_date', df['Created At'].min().strftime('%Y-%m-%d'))
+    end_date = request.form.get('end_date', df['Created At'].max().strftime('%Y-%m-%d'))
+    
+    df = df[(df['Created At'] >= start_date) & (df['Created At'] <= end_date)]
+    df_filtered = df_filtered[(df_filtered['Created At'] >= start_date) & (df_filtered['Created At'] <= end_date)]
+
     # Create visualizations
     plots = []
 
@@ -54,7 +60,18 @@ def index():
     fig5.update_layout(xaxis_title='Session Time (minutes)', yaxis_title='Elapsed Time (minutes)')
     plots.append(fig5.to_html(full_html=False))
 
-    return render_template('index.html', plots=plots)
+    # Cumulative Elapsed Time Over Time
+    fig6 = px.line(df, x='Created At', y=df['Elapsed'].cumsum(), title='Cumulative Elapsed Time Over Time')
+    fig6.update_layout(xaxis_title='Date', yaxis_title='Cumulative Elapsed Time (minutes)', xaxis=dict(tickangle=45))
+    plots.append(fig6.to_html(full_html=False))
+
+    # Session Count by Date
+    df['Date'] = df['Created At'].dt.date
+    fig7 = px.histogram(df, x='Date', title='Session Count by Date')
+    fig7.update_layout(xaxis_title='Date', yaxis_title='Count', xaxis=dict(tickangle=45))
+    plots.append(fig7.to_html(full_html=False))
+
+    return render_template('index.html', plots=plots, start_date=start_date, end_date=end_date)
 
 if __name__ == '__main__':
     app.run(debug=True)

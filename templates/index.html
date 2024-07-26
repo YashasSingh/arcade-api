@@ -7,8 +7,17 @@
 </head>
 <body>
     <h1>Arcade Sessions Visualization</h1>
+    <form method="POST">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+        <input type="submit" value="Filter">
+    </form>
+    <hr>
     {% for plot in plots %}
         <div>{{ plot|safe }}</div>
+        <hr>
     {% endfor %}
 </body>
 </html>
