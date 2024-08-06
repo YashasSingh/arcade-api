@@ -1,20 +1,16 @@
 import requests
 import csv
 import os
-import configparser
 from datetime import datetime
-from dotenv import load_dotenv, dotenv_values 
-
+from dotenv import load_dotenv
 
 load_dotenv() 
-# Read configuration file
-config = configparser.ConfigParser()
-config.read('config.ini')
 
-# Fetch API token and user ID from configuration file
+# Fetch API token and user ID from .env file
 SLACK_API_TOKEN = os.getenv("api_token")
 SLACK_USER_ID = os.getenv("user_id")
 CSV_FILE_PATH = 'arcade_sessions.csv'
+
 print(SLACK_API_TOKEN)
 
 headers = {

@@ -211,9 +211,106 @@ Created At,Time,Elapsed,Goal,Ended,Work
 2024-07-25T21:28:59.717Z,60,60,API use,True,api use
 2024-07-26T00:39:42.715Z,60,60,iris tracking,True,iris tracking ai 3
 2024-07-26T01:42:43.994Z,60,60,iris tracking,True,iris tracking ai 4
-2024-07-26T10:57:25.927Z,60,60,No Goal,True,iris tracking ai 5
-2024-07-26T12:00:27.233Z,60,60,No Goal,True,iris tracking ai 6
-2024-07-26T13:03:28.584Z,60,60,No Goal,True,iris tracking ai 7
-2024-07-26T14:06:29.835Z,60,60,No Goal,True,iris tracking ai 8
-2024-07-26T15:09:31.093Z,60,60,No Goal,True,iris tracking ai 9
-2024-07-26T16:42:32.445Z,60,49,No Goal,False,iris tracking ai 10
+2024-07-26T10:57:25.927Z,60,60,iris tracking,True,iris tracking ai 5
+2024-07-26T12:00:27.233Z,60,60,iris tracking,True,iris tracking ai 6
+2024-07-26T13:03:28.584Z,60,60,iris tracking,True,iris tracking ai 7
+2024-07-26T14:06:29.835Z,60,60,iris tracking,True,iris tracking ai 8
+2024-07-26T15:09:31.093Z,60,60,iris tracking,True,iris tracking ai 9
+2024-07-26T16:42:32.445Z,60,60,iris tracking,True,iris tracking ai 10
+2024-07-26T19:15:07.872Z,60,60,iris tracking,True,iris tracking ai 11
+2024-07-26T20:18:09.733Z,60,60,iris tracking,True,iris tracking ai 12
+2024-07-26T21:21:11.115Z,60,60,iris tracking,True,iris tracking ai 13
+2024-07-26T22:54:12.396Z,60,60,iris tracking,True,iris tracking ai 14
+2024-07-27T02:20:45.946Z,60,60,iris tracking,True,iris tracking ai 15
+2024-07-27T04:21:06.979Z,60,60,iris tracking,True,iris tracking ai 17
+2024-07-27T14:45:43.698Z,60,60,live music,True,live music 0
+2024-07-27T15:48:44.966Z,60,60,live music,True,live music 1
+2024-07-27T16:51:46.148Z,60,60,live music,True,live music 2
+2024-07-27T17:54:47.371Z,60,60,live music,True,live music 3
+2024-07-27T18:57:48.650Z,60,60,live music,True,live music 4
+2024-07-27T20:06:34.304Z,60,60,live music,True,live music 5
+2024-07-27T21:09:35.878Z,60,60,live music,True,live music 6
+2024-07-28T14:35:05.074Z,60,60,live music,True,live music 7
+2024-07-28T15:38:07.123Z,60,60,live music,True,live music 8
+2024-07-28T16:41:08.485Z,60,60,live music,True,live music 9
+2024-07-28T17:44:09.985Z,60,60,live music,True,live music 10
+2024-07-28T18:47:11.390Z,60,60,live music,True,live music 11
+2024-07-28T19:50:13.595Z,60,60,live music,True,live music 12
+2024-07-28T20:53:14.914Z,60,60,live music,True,live music 13
+2024-07-28T21:56:16.509Z,60,60,live music,True,live music 14
+2024-07-28T22:59:18.147Z,60,60,live music,True,live music 15
+2024-07-29T00:02:19.442Z,60,60,live music,True,live music 16
+2024-07-29T01:05:22.292Z,60,60,live music,True,live music 17
+2024-07-29T02:08:24.622Z,60,60,live music,True,live music 18
+2024-07-29T14:36:00.743Z,60,60,live music,True,live music 19
+2024-07-29T15:39:02.149Z,60,60,live music,True,live music 20
+2024-07-29T16:42:03.546Z,60,60,live music,True,live music 21
+2024-07-29T17:45:05.035Z,60,60,live music,True,live music 22
+2024-07-29T18:48:06.293Z,60,60,live music,True,live music 23
+2024-07-29T19:51:07.642Z,60,60,live music,True,live music 24
+2024-07-29T20:54:09.041Z,60,60,live music,True,live music 25
+2024-07-29T21:57:11.082Z,60,60,live music,True,live music 26
+2024-07-29T23:00:12.465Z,60,60,live music,True,live music 27
+2024-07-30T00:03:13.899Z,60,60,live music,True,live music 28
+2024-07-30T01:06:15.112Z,60,60,live music,True,live music 29
+2024-07-30T02:09:16.343Z,60,60,live music,True,live music 30
+2024-07-30T03:12:17.733Z,60,60,live music,True,live music 31
+2024-07-30T16:39:12.297Z,60,60,live music,True,live music 32
+2024-07-30T17:42:13.822Z,60,60,No Goal,True,live music 33
+2024-07-30T18:45:15.203Z,60,60,No Goal,True,live music 34
+2024-07-30T19:48:16.561Z,60,60,No Goal,True,live music 35
+2024-07-30T20:51:17.864Z,60,60,No Goal,True,live music 36
+2024-07-30T21:54:19.076Z,60,60,No Goal,True,live music 37
+2024-07-30T22:57:20.380Z,60,60,No Goal,True,live music 38
+2024-07-31T00:00:22.086Z,60,60,No Goal,True,live music 39
+2024-07-31T18:41:49.208Z,60,60,No Goal,True,live music 40
+2024-07-31T19:44:50.592Z,60,60,No Goal,True,live music 41
+2024-07-31T20:47:51.787Z,60,60,No Goal,True,live music 42
+2024-07-31T21:50:53.062Z,60,60,No Goal,True,live music 43
+2024-07-31T22:53:54.652Z,60,60,No Goal,True,live music 44
+2024-07-31T23:56:56.396Z,60,60,No Goal,True,live music 45
+2024-08-01T00:59:57.561Z,60,60,No Goal,True,live music 46
+2024-08-01T02:02:58.931Z,60,60,No Goal,True,live music 47
+2024-08-01T03:05:59.944Z,60,60,No Goal,True,live music 48
+2024-08-01T08:22:15.597Z,60,60,No Goal,True,live music 49
+2024-08-01T09:25:16.911Z,60,60,No Goal,True,live music 50
+2024-08-01T10:47:09.050Z,60,60,No Goal,True,live music 50
+2024-08-01T11:50:10.308Z,60,60,No Goal,True,live music 51
+2024-08-01T12:53:11.571Z,60,60,No Goal,True,live music 52
+2024-08-01T13:56:12.805Z,60,60,No Goal,True,live music 53
+2024-08-01T14:59:14.164Z,60,60,No Goal,True,live music 54
+2024-08-01T16:02:15.577Z,60,60,No Goal,True,live music 55
+2024-08-01T17:05:16.918Z,60,60,No Goal,True,live music 56
+2024-08-01T18:08:18.233Z,60,60,No Goal,True,live music 57
+2024-08-01T19:11:19.597Z,60,60,No Goal,True,live music 58
+2024-08-01T20:14:28.108Z,60,60,No Goal,True,live music 59
+2024-08-01T21:17:29.328Z,60,60,No Goal,True,live music 60
+2024-08-03T18:20:09.804Z,60,60,No Goal,True, template for hackathon 1
+2024-08-03T19:23:11.084Z,60,60,No Goal,True, template for hackathon 2
+2024-08-03T20:26:12.323Z,60,60,No Goal,True, template for hackathon 3
+2024-08-03T21:29:13.661Z,60,60,No Goal,True, template for hackathon 4
+2024-08-03T22:32:15.160Z,60,60,No Goal,True, template for hackathon 5
+2024-08-03T23:35:16.556Z,60,60,No Goal,True, template for hackathon 6
+2024-08-04T00:38:18.035Z,60,60,No Goal,True, template for hackathon 7
+2024-08-04T01:41:20.290Z,60,60,No Goal,True, template for hackathon 8
+2024-08-04T02:44:21.510Z,60,60,No Goal,True, template for hackathon 9
+2024-08-04T03:47:22.847Z,60,60,No Goal,True, template for hackathon 10
+2024-08-04T20:04:05.304Z,60,60,iris tracking,True,ai 16
+2024-08-04T21:04:44.647Z,60,60,iris tracking,True,ai 18
+2024-08-05T01:22:19.047Z,60,60,No Goal,True, ai game 1
+2024-08-05T02:25:21.382Z,60,60,No Goal,True, ai game 2
+2024-08-05T03:28:22.507Z,60,60,No Goal,True, ai game 3
+2024-08-05T08:44:43.786Z,60,60,No Goal,True, ai game 4
+2024-08-05T09:47:45.039Z,60,60,No Goal,True, ai game 5
+2024-08-05T10:50:46.286Z,60,60,No Goal,True, ai game 6
+2024-08-05T11:53:47.578Z,60,60,No Goal,True, ai game 7
+2024-08-05T12:56:48.975Z,60,60,No Goal,True, ai game 8
+2024-08-05T13:59:50.181Z,60,60,No Goal,True, ai game 9
+2024-08-05T16:05:52.186Z,60,60,No Goal,True, ai game 11
+2024-08-05T21:59:12.084Z,60,60,No Goal,True,ai game 10
+2024-08-06T02:11:49.027Z,60,60,No Goal,True, ai game 12
+2024-08-06T03:14:50.370Z,60,60,No Goal,True, ai game 13
+2024-08-06T15:11:22.496Z,60,60,No Goal,True, ai game 14
+2024-08-06T16:14:25.084Z,60,60,No Goal,True, ai game 15
+2024-08-06T17:17:26.519Z,60,60,No Goal,True, ai game 16
+2024-08-06T19:37:47.083Z,60,52,No Goal,False, ai game 17

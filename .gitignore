@@ -6,7 +6,7 @@
 *.exe
 *.o
 *.so
-
+.env
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
@@ -38,3 +38,4 @@ Thumbs.db
 config.ini
 .venv/
 venv/
+.env

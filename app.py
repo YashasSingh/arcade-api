@@ -1,8 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -19,12 +18,26 @@ def preprocess_data(df):
 def filter_sessions(df):
     return df[df['Time'] != 60]
 
-@app.route('/')
+def filter_by_date(df, start_date, end_date):
+    if start_date:
+        df = df[df['Created At'] >= pd.to_datetime(start_date)]
+    if end_date:
+        df = df[df['Created At'] <= pd.to_datetime(end_date)]
+    return df
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
     df_filtered = filter_sessions(df)
     
+    if start_date or end_date:
+        df = filter_by_date(df, start_date, end_date)
+        df_filtered = filter_by_date(df_filtered, start_date, end_date)
+
     # Create visualizations
     plots = []
 
@@ -71,7 +84,7 @@ def index():
     fig8.update_layout(xaxis_title='Date', yaxis_title='Total Elapsed Time (minutes)', xaxis=dict(tickangle=45))
     plots.append(fig8.to_html(full_html=False))
 
-    return render_template('index.html', plots=plots)
+    return render_template('index.html', plots=plots, start_date=start_date, end_date=end_date)
 
 if __name__ == '__main__':
     app.run(debug=True)
