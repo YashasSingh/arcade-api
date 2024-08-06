@@ -4,20 +4,62 @@
     <title>Arcade Sessions Visualization</title>
     <meta charset="utf-8">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .filter-form {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .filter-form input[type="submit"] {
+            padding: 5px 10px;
+        }
+        .summary-stats {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .summary-stats div {
+            display: inline-block;
+            margin: 0 20px;
+        }
+        .plots {
+            margin-top: 20px;
+        }
+        .plot {
+            margin-bottom: 40px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Arcade Sessions Visualization</h1>
-    <form method="POST">
-        <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
-        <label for="end_date">End Date:</label>
-        <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
-        <input type="submit" value="Filter">
-    </form>
-    <hr>
-    {% for plot in plots %}
-        <div>{{ plot|safe }}</div>
-        <hr>
-    {% endfor %}
+    <div class="container">
+        <h1>Arcade Sessions Visualization</h1>
+        <form class="filter-form" method="POST">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+            <input type="submit" value="Filter">
+        </form>
+        <div class="summary-stats">
+            <div>Total Sessions: {{ summary_stats.total_sessions }}</div>
+            <div>Average Session Time: {{ summary_stats.average_session_time | round(2) }} minutes</div>
+            <div>Total Elapsed Time: {{ summary_stats.total_elapsed_time }} minutes</div>
+        </div>
+        <div class="plots">
+            {% for plot in plots %}
+                <div class="plot">{{ plot|safe }}</div>
+            {% endfor %}
+        </div>
+    </div>
 </body>
 </html>

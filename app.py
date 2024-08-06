@@ -12,7 +12,7 @@ def read_csv(file_path):
     return pd.read_csv(file_path, encoding='ISO-8859-1')
 
 def preprocess_data(df):
-    df['Created At'] = pd.to_datetime(df['Created At'])
+    df['Created At'] = pd.to_datetime(df['Created At'], errors='coerce')
     return df
 
 def filter_sessions(df):
@@ -37,6 +37,16 @@ def index():
     if start_date or end_date:
         df = filter_by_date(df, start_date, end_date)
         df_filtered = filter_by_date(df_filtered, start_date, end_date)
+
+    # Summary statistics
+    total_sessions = len(df)
+    average_session_time = df['Time'].mean()
+    total_elapsed_time = df['Elapsed'].sum()
+    summary_stats = {
+        'total_sessions': total_sessions,
+        'average_session_time': average_session_time,
+        'total_elapsed_time': total_elapsed_time
+    }
 
     # Create visualizations
     plots = []
@@ -84,7 +94,12 @@ def index():
     fig8.update_layout(xaxis_title='Date', yaxis_title='Total Elapsed Time (minutes)', xaxis=dict(tickangle=45))
     plots.append(fig8.to_html(full_html=False))
 
-    return render_template('index.html', plots=plots, start_date=start_date, end_date=end_date)
+    # Session Goals Over Time
+    fig9 = px.histogram(df, x='Created At', color='Goal', title='Session Goals Over Time')
+    fig9.update_layout(xaxis_title='Date', yaxis_title='Count', xaxis=dict(tickangle=45))
+    plots.append(fig9.to_html(full_html=False))
+
+    return render_template('index.html', plots=plots, start_date=start_date, end_date=end_date, summary_stats=summary_stats)
 
 if __name__ == '__main__':
     app.run(debug=True)
