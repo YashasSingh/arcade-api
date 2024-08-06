@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
 
 app = Flask(__name__)
 
@@ -25,10 +24,16 @@ def filter_by_date(df, start_date, end_date):
         df = df[df['Created At'] <= pd.to_datetime(end_date)]
     return df
 
+def filter_by_goal(df, goal):
+    if goal:
+        df = df[df['Goal'] == goal]
+    return df
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     start_date = request.form.get('start_date')
     end_date = request.form.get('end_date')
+    selected_goal = request.form.get('goal')
     
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
@@ -37,6 +42,13 @@ def index():
     if start_date or end_date:
         df = filter_by_date(df, start_date, end_date)
         df_filtered = filter_by_date(df_filtered, start_date, end_date)
+
+    if selected_goal:
+        df = filter_by_goal(df, selected_goal)
+        df_filtered = filter_by_goal(df_filtered, selected_goal)
+
+    if df.empty:
+        return render_template('index.html', plots=[], start_date=start_date, end_date=end_date, selected_goal=selected_goal, summary_stats={}, no_data=True, goals=df['Goal'].unique())
 
     # Summary statistics
     total_sessions = len(df)
@@ -57,8 +69,7 @@ def index():
     plots.append(fig1.to_html(full_html=False))
 
     # Goal Distribution
-    fig2 = px.histogram(df, x='Goal', title='Goal Distribution')
-    fig2.update_layout(xaxis_title='Goal', yaxis_title='Count', xaxis=dict(tickangle=45))
+    fig2 = px.pie(df, names='Goal', title='Goal Distribution')
     plots.append(fig2.to_html(full_html=False))
 
     # Session Duration Distribution
@@ -99,7 +110,24 @@ def index():
     fig9.update_layout(xaxis_title='Date', yaxis_title='Count', xaxis=dict(tickangle=45))
     plots.append(fig9.to_html(full_html=False))
 
-    return render_template('index.html', plots=plots, start_date=start_date, end_date=end_date, summary_stats=summary_stats)
+    # Number of Sessions by Weekday
+    df['Weekday'] = df['Created At'].dt.day_name()
+    fig10 = px.histogram(df, x='Weekday', title='Number of Sessions by Weekday')
+    fig10.update_layout(xaxis_title='Weekday', yaxis_title='Number of Sessions')
+    plots.append(fig10.to_html(full_html=False))
+
+    # Session Length Distribution
+    fig11 = px.box(df, x='Goal', y='Time', title='Session Length Distribution by Goal')
+    fig11.update_layout(xaxis_title='Goal', yaxis_title='Session Time (minutes)')
+    plots.append(fig11.to_html(full_html=False))
+
+    # Heatmap of Sessions by Day and Hour
+    df['Hour'] = df['Created At'].dt.hour
+    heatmap_data = df.pivot_table(index=df['Created At'].dt.date, columns='Hour', values='Time', aggfunc='count').fillna(0)
+    fig12 = px.imshow(heatmap_data, labels=dict(x="Hour", y="Date", color="Number of Sessions"), title="Sessions by Day and Hour")
+    plots.append(fig12.to_html(full_html=False))
+
+    return render_template('index.html', plots=plots, start_date=start_date, end_date=end_date, selected_goal=selected_goal, summary_stats=summary_stats, no_data=False, goals=df['Goal'].unique())
 
 if __name__ == '__main__':
     app.run(debug=True)

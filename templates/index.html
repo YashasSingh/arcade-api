@@ -38,6 +38,15 @@
         .plot {
             margin-bottom: 40px;
         }
+        .no-data {
+            text-align: center;
+            color: red;
+            font-size: 1.2em;
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -48,18 +57,35 @@
             <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
             <label for="end_date">End Date:</label>
             <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+            <label for="goal">Goal:</label>
+            <select id="goal" name="goal">
+                <option value="">All Goals</option>
+                {% for goal in goals %}
+                    <option value="{{ goal }}" {% if goal == selected_goal %}selected{% endif %}>{{ goal }}</option>
+                {% endfor %}
+            </select>
             <input type="submit" value="Filter">
         </form>
-        <div class="summary-stats">
-            <div>Total Sessions: {{ summary_stats.total_sessions }}</div>
-            <div>Average Session Time: {{ summary_stats.average_session_time | round(2) }} minutes</div>
-            <div>Total Elapsed Time: {{ summary_stats.total_elapsed_time }} minutes</div>
-        </div>
-        <div class="plots">
-            {% for plot in plots %}
-                <div class="plot">{{ plot|safe }}</div>
-            {% endfor %}
-        </div>
+        {% if no_data %}
+            <div class="no-data">No data available for the selected date range and goal.</div>
+        {% else %}
+            <div class="summary-stats">
+                <div>Total Sessions: {{ summary_stats.total_sessions }}</div>
+                <div>Average Session Time: {{ summary_stats.average_session_time | round(2) }} minutes</div>
+                <div>Total Elapsed Time: {{ summary_stats.total_elapsed_time }} minutes</div>
+            </div>
+            <div class="plots">
+                {% for plot in plots %}
+                    <div class="plot">{{ plot|safe }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="loading-spinner" id="loading-spinner">Loading...</div>
     </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('loading-spinner').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
