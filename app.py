@@ -1,13 +1,23 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for, session
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from io import BytesIO
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Replace with your secret key
 
 # Constants
 CSV_FILE_PATH = 'arcade_sessions.csv'
+USERS = {'admin': generate_password_hash('password')}  # Replace with your credentials
 
 def read_csv(file_path):
     return pd.read_csv(file_path, encoding='ISO-8859-1')
@@ -26,24 +36,42 @@ def filter_by_date(df, start_date, end_date):
         df = df[df['Created At'] <= pd.to_datetime(end_date)]
     return df
 
-def filter_by_goal(df, goal):
-    if goal:
-        df = df[df['Goal'] == goal]
+def filter_by_goal(df, goals):
+    if goals:
+        df = df[df['Goal'].isin(goals)]
     return df
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
+    if 'username' not in session:
+        return redirect(url_for('login'))
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
     goals = df['Goal'].unique()
-
     return render_template('index.html', goals=goals)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username in USERS and check_password_hash(USERS[username], password):
+            session['username'] = username
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error='Invalid Credentials')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 @app.route('/filter', methods=['POST'])
 def filter_data():
     start_date = request.form.get('start_date')
     end_date = request.form.get('end_date')
-    selected_goal = request.form.get('goal')
+    selected_goals = request.form.getlist('goals')
     
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
@@ -53,9 +81,9 @@ def filter_data():
         df = filter_by_date(df, start_date, end_date)
         df_filtered = filter_by_date(df_filtered, start_date, end_date)
 
-    if selected_goal:
-        df = filter_by_goal(df, selected_goal)
-        df_filtered = filter_by_goal(df_filtered, selected_goal)
+    if selected_goals:
+        df = filter_by_goal(df, selected_goals)
+        df_filtered = filter_by_goal(df_filtered, selected_goals)
 
     if df.empty:
         return jsonify({'no_data': True})
@@ -63,11 +91,15 @@ def filter_data():
     # Summary statistics
     total_sessions = len(df)
     average_session_time = df['Time'].mean()
+    median_session_time = df['Time'].median()
     total_elapsed_time = df['Elapsed'].sum()
+    sessions_per_goal = df['Goal'].value_counts().to_dict()
     summary_stats = {
         'total_sessions': total_sessions,
         'average_session_time': average_session_time,
-        'total_elapsed_time': total_elapsed_time
+        'median_session_time': median_session_time,
+        'total_elapsed_time': total_elapsed_time,
+        'sessions_per_goal': sessions_per_goal
     }
 
     # Create visualizations
@@ -141,6 +173,86 @@ def filter_data():
     session_table = df.to_html(classes='data-table', index=False)
 
     return jsonify({'plots': plots, 'summary_stats': summary_stats, 'session_table': session_table, 'no_data': False})
+
+@app.route('/export', methods=['POST'])
+def export_data():
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    selected_goals = request.form.getlist('goals')
+    
+    df = read_csv(CSV_FILE_PATH)
+    df = preprocess_data(df)
+    df_filtered = filter_sessions(df)
+    
+    if start_date or end_date:
+        df = filter_by_date(df, start_date, end_date)
+        df_filtered = filter_by_date(df_filtered, start_date, end_date)
+
+    if selected_goals:
+        df = filter_by_goal(df, selected_goals)
+        df_filtered = filter_by_goal(df_filtered, selected_goals)
+
+    if df.empty:
+        return jsonify({'no_data': True})
+    
+    # Export filtered data to CSV
+    output = BytesIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+    
+    return send_file(output, mimetype='text/csv', attachment_filename='filtered_sessions.csv', as_attachment=True)
+
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    selected_goals = request.form.getlist('goals')
+    email = request.form.get('email')
+
+    df = read_csv(CSV_FILE_PATH)
+    df = preprocess_data(df)
+    df_filtered = filter_sessions(df)
+
+    if start_date or end_date:
+        df = filter_by_date(df, start_date, end_date)
+        df_filtered = filter_by_date(df_filtered, start_date, end_date)
+
+    if selected_goals:
+        df = filter_by_goal(df, selected_goals)
+        df_filtered = filter_by_goal(df_filtered, selected_goals)
+
+    if df.empty:
+        return jsonify({'no_data': True})
+
+    # Export filtered data to CSV
+    output = BytesIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+    csv_data = output.read()
+
+    # Send email
+    msg = MIMEMultipart()
+    msg['From'] = 'your_email@example.com'  # Replace with your email
+    msg['To'] = email
+    msg['Subject'] = 'Filtered Arcade Sessions Data'
+
+    body = 'Please find attached the filtered Arcade Sessions data.'
+    msg.attach(MIMEText(body, 'plain'))
+
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload(csv_data)
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', "attachment; filename= filtered_sessions.csv")
+    msg.attach(part)
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)  # Replace with your SMTP server
+    server.starttls()
+    server.login(msg['From'], 'your_password')  # Replace with your email password
+    text = msg.as_string()
+    server.sendmail(msg['From'], msg['To'], text)
+    server.quit()
+
+    return jsonify({'email_sent': True})
 
 if __name__ == '__main__':
     app.run(debug=True)
