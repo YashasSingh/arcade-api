@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 app = Flask(__name__)
 
@@ -31,6 +33,14 @@ def filter_by_goal(df, goal):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    df = read_csv(CSV_FILE_PATH)
+    df = preprocess_data(df)
+    goals = df['Goal'].unique()
+
+    return render_template('index.html', goals=goals)
+
+@app.route('/filter', methods=['POST'])
+def filter_data():
     start_date = request.form.get('start_date')
     end_date = request.form.get('end_date')
     selected_goal = request.form.get('goal')
@@ -48,7 +58,7 @@ def index():
         df_filtered = filter_by_goal(df_filtered, selected_goal)
 
     if df.empty:
-        return render_template('index.html', plots=[], start_date=start_date, end_date=end_date, selected_goal=selected_goal, summary_stats={}, no_data=True, goals=df['Goal'].unique())
+        return jsonify({'no_data': True})
 
     # Summary statistics
     total_sessions = len(df)
@@ -127,7 +137,10 @@ def index():
     fig12 = px.imshow(heatmap_data, labels=dict(x="Hour", y="Date", color="Number of Sessions"), title="Sessions by Day and Hour")
     plots.append(fig12.to_html(full_html=False))
 
-    return render_template('index.html', plots=plots, start_date=start_date, end_date=end_date, selected_goal=selected_goal, summary_stats=summary_stats, no_data=False, goals=df['Goal'].unique())
+    # Session Details Table
+    session_table = df.to_html(classes='data-table', index=False)
+
+    return jsonify({'plots': plots, 'summary_stats': summary_stats, 'session_table': session_table, 'no_data': False})
 
 if __name__ == '__main__':
     app.run(debug=True)

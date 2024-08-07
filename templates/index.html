@@ -4,6 +4,8 @@
     <title>Arcade Sessions Visualization</title>
     <meta charset="utf-8">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,44 +49,73 @@
             display: none;
             text-align: center;
         }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Arcade Sessions Visualization</h1>
-        <form class="filter-form" method="POST">
-            <label for="start_date">Start Date:</label>
-            <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
-            <label for="end_date">End Date:</label>
-            <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+        <form class="filter-form" method="POST" action="/filter">
+            <input type="text" name="daterange" id="daterange" />
             <label for="goal">Goal:</label>
             <select id="goal" name="goal">
-                <option value="">All Goals</option>
+                <option value="">All</option>
                 {% for goal in goals %}
-                    <option value="{{ goal }}" {% if goal == selected_goal %}selected{% endif %}>{{ goal }}</option>
+                    <option value="{{ goal }}">{{ goal }}</option>
                 {% endfor %}
             </select>
             <input type="submit" value="Filter">
         </form>
-        {% if no_data %}
-            <div class="no-data">No data available for the selected date range and goal.</div>
-        {% else %}
-            <div class="summary-stats">
-                <div>Total Sessions: {{ summary_stats.total_sessions }}</div>
-                <div>Average Session Time: {{ summary_stats.average_session_time | round(2) }} minutes</div>
-                <div>Total Elapsed Time: {{ summary_stats.total_elapsed_time }} minutes</div>
-            </div>
-            <div class="plots">
-                {% for plot in plots %}
-                    <div class="plot">{{ plot|safe }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
+        <div id="summary-stats"></div>
+        <div id="plots"></div>
         <div class="loading-spinner" id="loading-spinner">Loading...</div>
+        <div id="session-table"></div>
     </div>
     <script>
-        document.querySelector('form').addEventListener('submit', function() {
+        document.querySelector('.filter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
             document.getElementById('loading-spinner').style.display = 'block';
+            fetch('/filter', {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading-spinner').style.display = 'none';
+                if (data.no_data) {
+                    document.getElementById('summary-stats').innerHTML = '<div class="no-data">No data available for the selected date range and goal.</div>';
+                    document.getElementById('plots').innerHTML = '';
+                    document.getElementById('session-table').innerHTML = '';
+                } else {
+                    document.getElementById('summary-stats').innerHTML = `
+                        <div>Total Sessions: ${data.summary_stats.total_sessions}</div>
+                        <div>Average Session Time: ${data.summary_stats.average_session_time.toFixed(2)} minutes</div>
+                        <div>Total Elapsed Time: ${data.summary_stats.total_elapsed_time} minutes</div>
+                    `;
+                    document.getElementById('plots').innerHTML = data.plots.map(plot => `<div class="plot">${plot}</div>`).join('');
+                    document.getElementById('session-table').innerHTML = data.session_table;
+                }
+            });
+        });
+
+        $(function() {
+            $('input[name="daterange"]').daterangepicker({
+                opens: 'left'
+            }, function(start, end, label) {
+                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+            });
         });
     </script>
 </body>
