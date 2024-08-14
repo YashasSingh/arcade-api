@@ -63,6 +63,18 @@ USERS = {
         'role': 'user'
     }
 }
+@app.route('/get_sessions_data', methods=['POST'])
+def get_sessions_data():
+    df = read_csv(CSV_FILE_PATH)
+    df = preprocess_data(df)
+    
+    # Convert dataframe to list of dicts
+    data = df.to_dict(orient='records')
+    
+    return jsonify({
+        "data": data
+    })
+
 @app.route('/export_data', methods=['POST'])
 def export_data():
     if 'export_csv' in request.form:
@@ -86,6 +98,24 @@ def preprocess_data(df):
 
 def filter_sessions(df):
     return df[df['Time'] != 60]
+@app.route('/filter_sessions', methods=['POST'])
+def filter_sessions():
+    df = read_csv(CSV_FILE_PATH)
+    df = preprocess_data(df)
+    
+    # Retrieve filters from request
+    duration_range = request.form['duration_range'].split(' - ')
+    min_duration, max_duration = int(duration_range[0]), int(duration_range[1])
+    selected_goals = request.form.getlist('goals')
+    
+    # Apply filters
+    df_filtered = df[(df['Time'] >= min_duration) & (df['Time'] <= max_duration)]
+    if selected_goals:
+        df_filtered = df_filtered[df_filtered['Goal'].isin(selected_goals)]
+    
+    # Return filtered data
+    data = df_filtered.to_dict(orient='records')
+    return jsonify({"data": data})
 
 def filter_by_date(df, start_date, end_date):
     if start_date:

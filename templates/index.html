@@ -172,31 +172,7 @@
             });
         });
         <!-- Include DataTable with AJAX -->
-    <table id="session-table" class="display" style="width:100%">
-    <thead>
-        <tr>
-            <th>Created At</th>
-            <th>Time</th>
-            <th>Elapsed</th>
-            <th>Goal</th>
-            <th>Ended</th>
-            <th>Work</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for session in sessions %}
-        <tr>
-            <td>{{ session['Created At'] }}</td>
-            <td>{{ session['Time'] }}</td>
-            <td>{{ session['Elapsed'] }}</td>
-            <td>{{ session['Goal'] }}</td>
-            <td>{{ session['Ended'] }}</td>
-            <td>{{ session['Work'] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
+  
 
     $(document).ready(function() {
         $('#session-table').DataTable({
@@ -220,6 +196,40 @@
     <input type="submit" name="export_csv" value="Export as CSV">
     <input type="submit" name="export_excel" value="Export as Excel">
 </form>
+<!-- DataTable with AJAX -->
+<table id="session-table" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>Created At</th>
+            <th>Time</th>
+            <th>Elapsed</th>
+            <th>Goal</th>
+            <th>Ended</th>
+            <th>Work</th>
+        </tr>
+    </thead>
+</table>
+
+<script>
+    $(document).ready(function() {
+        $('#session-table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "/get_sessions_data",
+                "type": "POST"
+            },
+            "columns": [
+                { "data": "Created At" },
+                { "data": "Time" },
+                { "data": "Elapsed" },
+                { "data": "Goal" },
+                { "data": "Ended" },
+                { "data": "Work" }
+            ]
+        });
+    });
+</script>
 
 <script>
     $(function() {
@@ -234,6 +244,59 @@
         });
     });
 </script>
+
+<!-- Duration Range Filter -->
+<label for="duration_range">Session Duration Range:</label>
+<input type="text" id="duration_range" name="duration_range" value="0 - 60">
+
+<!-- Multi-select Goals -->
+<label for="goal_select">Select Goals:</label>
+<select id="goal_select" name="goals" multiple="multiple">
+    {% for goal in unique_goals %}
+    <option value="{{ goal }}">{{ goal }}</option>
+    {% endfor %}
+</select>
+
+<script>
+    $(function() {
+        $("#duration_range").slider({
+            range: true,
+            min: 0,
+            max: 120,
+            values: [0, 60],
+            slide: function(event, ui) {
+                $("#duration_range").val(ui.values[0] + " - " + ui.values[1]);
+            }
+        });
+
+        $('#goal_select').multiselect({
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            buttonWidth: '100%'
+        });
+    });
+
+    // Filter button
+    $('#filter_button').on('click', function() {
+        var durationRange = $('#duration_range').val();
+        var selectedGoals = $('#goal_select').val();
+        
+        // Send filter data to the server
+        $.ajax({
+            url: '/filter_sessions',
+            method: 'POST',
+            data: {
+                'duration_range': durationRange,
+                'goals': selectedGoals
+            },
+            success: function(response) {
+                // Reload table with filtered data
+                $('#session-table').DataTable().ajax.reload();
+            }
+        });
+    });
+</script>
+
 
 </body>
 
