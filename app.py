@@ -18,6 +18,36 @@ import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with your secret key
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
+app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+class User(UserMixin):
+    pass
+
+@login_manager.user_loader
+def user_loader(email):
+    user = User()
+    user.id = email
+    return user
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = User()
+        user.id = email
+        login_user(user)
+        return redirect(url_for('index'))
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 # Constants
 CSV_FILE_PATH = 'arcade_sessions.csv'
@@ -33,6 +63,14 @@ USERS = {
         'role': 'user'
     }
 }
+@app.route('/export_data', methods=['POST'])
+def export_data():
+    if 'export_csv' in request.form:
+        # Generate and return CSV file
+        pass
+    elif 'export_excel' in request.form:
+        # Generate and return Excel file
+        pass
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
