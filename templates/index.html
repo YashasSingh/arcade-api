@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arcade Sessions Visualization</title>
-    <meta charset="utf-8">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,45 +47,63 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Arcade Sessions Visualization</h1>
-        <form class="filter-form" method="POST" action="/filter">
-            <input type="text" name="daterange" id="daterange" />
-            <label for="goal">Goals:</label>
-            <select id="goal" name="goals" multiple>
-                {% for goal in goals %}
-                    <option value="{{ goal }}">{{ goal }}</option>
-                {% endfor %}
-            </select>
-            <input type="text" name="search_query" id="search_query" placeholder="Search">
-            <input type="submit" value="Filter">
-        </form>
-        <form method="POST" action="/export">
-            <input type="hidden" name="start_date" id="export_start_date">
-            <input type="hidden" name="end_date" id="export_end_date">
-            <input type="hidden" name="goals" id="export_goals">
-            <input type="submit" value="Export Data to CSV">
-        </form>
-        <form method="POST" action="/send_email">
-            <input type="hidden" name="start_date" id="email_start_date">
-            <input type="hidden" name="end_date" id="email_end_date">
-            <input type="hidden" name="goals" id="email_goals">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-            <input type="submit" value="Send Data via Email">
-        </form>
-        <form method="POST" action="/upload" enctype="multipart/form-data">
-            <label for="file">Upload CSV:</label>
-            <input type="file" id="file" name="file" accept=".csv">
-            <input type="submit" value="Upload">
-        </form>
-        <div id="summary-stats" class="summary-stats"></div>
-        <div id="plots" class="plots"></div>
-        <div class="loading-spinner" id="loading-spinner">Loading...</div>
-        <div id="session-table"></div>
-    </div>
+    <h1>Arcade Sessions Visualization</h1>
+    <form method="POST" action="/filter">
+        <label for="daterange">Date Range:</label>
+        <input type="text" id="daterange" name="daterange" value="{{ start_date }} - {{ end_date }}">
+        
+        <label for="goal">Goal:</label>
+        <select id="goal" name="goals" multiple>
+            {% for goal in goals %}
+                <option value="{{ goal }}">{{ goal }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="search_query">Search:</label>
+        <input type="text" id="search_query" name="search_query" placeholder="Search keywords...">
+
+        <fieldset>
+            <legend>Select Visualizations:</legend>
+            <label><input type="checkbox" name="plot_options" value="session_time_over_time"> Session Time Over Time</label><br>
+            <label><input type="checkbox" name="plot_options" value="goal_distribution"> Goal Distribution</label><br>
+            <label><input type="checkbox" name="plot_options" value="session_duration_distribution"> Session Duration Distribution</label><br>
+            <label><input type="checkbox" name="plot_options" value="elapsed_time_by_goal"> Elapsed Time by Goal</label><br>
+            <label><input type="checkbox" name="plot_options" value="session_time_vs_elapsed"> Session Time vs Elapsed Time</label><br>
+            <label><input type="checkbox" name="plot_options" value="average_elapsed_time"> Average Elapsed Time</label><br>
+            <label><input type="checkbox" name="plot_options" value="sessions_over_time"> Number of Sessions Over Time</label><br>
+            <label><input type="checkbox" name="plot_options" value="total_elapsed_time_over_time"> Total Elapsed Time Over Time</label><br>
+        </fieldset>
+
+        <input type="submit" value="Filter">
+    </form>
+
+    <div id="loading-spinner" style="display:none;">Loading...</div>
+
+    <div id="summary-stats"></div>
+    <div id="plots"></div>
+    <div id="session-table"></div>
+
+    <hr>
+
+    <form method="POST" action="/generate_report">
+        <input type="submit" value="Generate PDF Report">
+    </form>
+
+    <hr>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Upload CSV">
+    </form>
+
+    <hr>
+
+    <form method="POST" action="/logout">
+        <input type="submit" value="Logout">
+    </form>
+
     <script>
-        document.querySelector('.filter-form').addEventListener('submit', function(e) {
+        document.querySelector('form[action="/filter"]').addEventListener('submit', function(e) {
             e.preventDefault();
             document.getElementById('loading-spinner').style.display = 'block';
             fetch('/filter', {
@@ -120,16 +140,22 @@
             });
         });
 
-        document.querySelector('form[action="/export"]').addEventListener('submit', function() {
-            document.getElementById('export_start_date').value = document.querySelector('input[name="daterange"]').value.split(' - ')[0];
-            document.getElementById('export_end_date').value = document.querySelector('input[name="daterange"]').value.split(' - ')[1];
-            document.getElementById('export_goals').value = Array.from(document.querySelectorAll('#goal option:checked')).map(el => el.value).join(',');
-        });
-
-        document.querySelector('form[action="/send_email"]').addEventListener('submit', function() {
-            document.getElementById('email_start_date').value = document.querySelector('input[name="daterange"]').value.split(' - ')[0];
-            document.getElementById('email_end_date').value = document.querySelector('input[name="daterange"]').value.split(' - ')[1];
-            document.getElementById('email_goals').value = Array.from(document.querySelectorAll('#goal option:checked')).map(el => el.value).join(',');
+        document.querySelector('form[action="/generate_report"]').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch('/generate_report', {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "arcade_sessions_report.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            });
         });
     </script>
 </body>
