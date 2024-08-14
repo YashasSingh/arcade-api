@@ -9,15 +9,32 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with your secret key
 
 # Constants
 CSV_FILE_PATH = 'arcade_sessions.csv'
-USERS = {'admin': generate_password_hash('password')}  # Replace with your credentials
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'csv'}
+USERS = {
+    'admin': {
+        'password': generate_password_hash('password'),
+        'role': 'admin'
+    },
+    'user': {
+        'password': generate_password_hash('userpass'),
+        'role': 'user'
+    }
+}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def read_csv(file_path):
     return pd.read_csv(file_path, encoding='ISO-8859-1')
@@ -41,6 +58,9 @@ def filter_by_goal(df, goals):
         df = df[df['Goal'].isin(goals)]
     return df
 
+def search_data(df, query):
+    return df[df.apply(lambda row: row.astype(str).str.contains(query, case=False).any(), axis=1)]
+
 @app.route('/')
 def index():
     if 'username' not in session:
@@ -55,8 +75,9 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username in USERS and check_password_hash(USERS[username], password):
+        if username in USERS and check_password_hash(USERS[username]['password'], password):
             session['username'] = username
+            session['role'] = USERS[username]['role']
             return redirect(url_for('index'))
         else:
             return render_template('login.html', error='Invalid Credentials')
@@ -65,6 +86,7 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('username', None)
+    session.pop('role', None)
     return redirect(url_for('login'))
 
 @app.route('/filter', methods=['POST'])
@@ -72,6 +94,7 @@ def filter_data():
     start_date = request.form.get('start_date')
     end_date = request.form.get('end_date')
     selected_goals = request.form.getlist('goals')
+    search_query = request.form.get('search_query')
     
     df = read_csv(CSV_FILE_PATH)
     df = preprocess_data(df)
@@ -85,6 +108,9 @@ def filter_data():
         df = filter_by_goal(df, selected_goals)
         df_filtered = filter_by_goal(df_filtered, selected_goals)
 
+    if search_query:
+        df = search_data(df, search_query)
+        df_filtered = search_data(df_filtered, search_query)
     if df.empty:
         return jsonify({'no_data': True})
 
@@ -253,6 +279,29 @@ def send_email():
     server.quit()
 
     return jsonify({'email_sent': True})
+
+    if df.empty:
+        return jsonify({'no_data': True})
+
+    # The rest of the code for filtering and generating plots goes here...
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = file.filename
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            # Process the new file
+            df = read_csv(filepath)
+            df.to_csv(CSV_FILE_PATH, index=False)  # Overwrite the existing data
+            return redirect(url_for('index'))
+    return render_template('upload.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

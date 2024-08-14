@@ -55,6 +55,7 @@
                     <option value="{{ goal }}">{{ goal }}</option>
                 {% endfor %}
             </select>
+            <input type="text" name="search_query" id="search_query" placeholder="Search">
             <input type="submit" value="Filter">
         </form>
         <form method="POST" action="/export">
@@ -70,6 +71,11 @@
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
             <input type="submit" value="Send Data via Email">
+        </form>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <label for="file">Upload CSV:</label>
+            <input type="file" id="file" name="file" accept=".csv">
+            <input type="submit" value="Upload">
         </form>
         <div id="summary-stats" class="summary-stats"></div>
         <div id="plots" class="plots"></div>
