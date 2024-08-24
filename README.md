@@ -94,5 +94,3 @@ Contributions are welcome! Please fork this repository and submit a pull request
 This project is licensed under the MIT License.
 
 ---
-
-Made with ❤️ by [Your Name](https://github.com/your-username)
