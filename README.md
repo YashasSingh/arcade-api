@@ -1,4 +1,5 @@
 # Arcade Sessions Visualization
+![Video Project 1 (1)](https://github.com/user-attachments/assets/bfcbbca7-e6fc-454f-9b18-3db8b4993de8)
 
 ## Overview
 
