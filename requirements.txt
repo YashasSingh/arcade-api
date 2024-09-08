@@ -1,0 +1,9 @@
+requests
+python-dotenv
+Flask
+pandas
+plotly
+smtplib3 # This depends on your email server setup; smtplib is part of the standard library, so this may not be necessary.
+email # Part of the Python standard library
+werkzeug
+fpdf
